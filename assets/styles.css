@@ -30,8 +30,8 @@ body.modal-open { overflow: hidden; }
   position: sticky;
   top: 0;
   z-index: 20;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 16px;
   padding: 12px clamp(16px, 4vw, 48px);
@@ -147,11 +147,13 @@ button:disabled { opacity: .45; cursor: not-allowed; transform: none; }
 .site-footer { width: min(1120px, calc(100% - 32px)); margin: 28px auto; padding: 18px 0 36px; color: var(--muted); text-align: center; }
 .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #111827; color: #fff; padding: 10px 14px; border-radius: var(--radius); box-shadow: var(--shadow); z-index: 40; }
 @media (max-width: 780px) {
-  .site-header { position: static; align-items: stretch; flex-direction: column; padding: 12px 16px; }
-  .top-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
-  .ghost-button, .star-button { min-height: 38px; padding: 0 8px; font-size: .86rem; }
+  .site-header { position: static; grid-template-columns: minmax(0, 1fr) auto; align-items: center; padding: 12px 16px; column-gap: 10px; row-gap: 10px; }
+  .brand { min-width: 0; }
+  .brand span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .top-actions { grid-column: 1 / -1; grid-row: 2; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .ghost-button { min-height: 38px; padding: 0 8px; font-size: .86rem; }
   .ghost-button { background: #f8fafc; }
-  .star-button { grid-column: 1 / -1; }
+  .star-button { grid-column: 2; grid-row: 1; min-height: 38px; padding: 0 12px; border-radius: 999px; font-size: .86rem; white-space: nowrap; }
   main { width: min(100% - 20px, 1120px); }
   .hero-section { grid-template-columns: 1fr; min-height: auto; padding-top: 28px; gap: 20px; }
   .hero-logo { grid-template-columns: 48px minmax(0, 1fr); }
@@ -179,4 +181,13 @@ button:disabled { opacity: .45; cursor: not-allowed; transform: none; }
   .share-card-logo { width: 46px; height: 46px; }
   .share-card-code { letter-spacing: .08em; }
   .modal-close { width: 42px; height: 42px; }
+}
+
+@media (max-width: 380px) {
+  .site-header { grid-template-columns: minmax(0, 1fr) auto; padding-inline: 10px; }
+  .brand { gap: 8px; font-size: .92rem; }
+  .brand-mark { width: 30px; height: 30px; }
+  .star-button { padding: 0 10px; }
+  .top-actions { grid-template-columns: 1fr; }
+  .top-actions .ghost-button { font-size: .8rem; }
 }
