@@ -1,91 +1,125 @@
 # MBTI-Research Online
 
-一个面向 AI 研究者与科研团队的 MBTI 风格科研协作测评静态页面。项目不依赖后端服务、数据库或构建工具，可直接部署到 GitHub Pages、静态网站托管平台或任意 HTTP 静态文件服务器。
+MBTI-Research Online is a static, browser-only assessment page for AI researchers and research teams. It adapts the MBTI-style four-dimension framework into research collaboration scenarios, then generates a research personality profile for self-reflection and team communication.
 
-> 测评结果仅用于科研协作、自我理解和团队沟通参考，不应作为心理诊断、招聘筛选或高风险决策依据。
+MBTI-Research Online 是一个面向 AI 研究者与科研团队的静态测评页面。它将 MBTI 风格的四维度框架改写为科研协作场景，用于生成科研协作画像，帮助个人和团队讨论研究偏好、协作方式与项目推进风格。
 
-## 项目简介
+> The result is for self-understanding and research collaboration only. It is not a psychological diagnosis, hiring standard, or high-stakes decision tool.
+>
+> 测评结果仅供自我理解、科研协作和团队沟通参考，不应用作心理诊断、招聘筛选或高风险决策依据。
 
-MBTI-Research Online 将传统 MBTI 四维度框架改写为更贴近 AI 科研场景的问卷体验。用户完成 93 道 A/B 选择题后，页面会根据内置评分规则生成 16 种科研协作画像之一，并展示对应的科研偏好、协作优势、成长建议、沟通方式和角色建议。
+## Project Vision / 项目出发点
 
-项目完全在浏览器端运行：
+AI research is rarely a single linear task. A real research workflow often includes topic selection, paper reading, reproduction, experiment design, debugging, writing, review response, team discussion, and delivery. Different researchers naturally prefer different ways of working.
 
-- 无需注册、登录或服务端接口
-- 无需 Django、Node.js、数据库或构建步骤
-- 问卷题目和画像内容以 JSON 文件维护
-- 答题进度保存在访问者本机浏览器的 `localStorage`
-- 可直接作为静态站点发布
+This project provides a lightweight shared language for those differences:
 
-## 功能特性
+- How do I generate energy in research collaboration?
+- Do I start from concrete evidence or abstract possibilities?
+- Do I make decisions through logic-first analysis or people-aware judgment?
+- Do I prefer planned progress or adaptive exploration?
 
-- 93 道 AI 科研协作场景 A/B 测评题
-- 16 种科研协作画像展示
-- 四个维度的分数统计与倾向分析
-- 分页答题、进度条、上一页/下一页导航
-- 当前页清空与全部进度清空
-- 结果页包含画像概述、协作优势、成长建议、科研角色建议等内容
-- 画像列表支持点击查看类型详情
-- 响应式布局，适配桌面端与移动端
-- 纯前端实现，便于托管、复制和二次修改
+AI 科研通常不是单人完成的线性任务，而是由选题、阅读、复现、实验、调试、写作、审稿回应和团队讨论共同组成的协作过程。本项目希望提供一种轻量的共同语言，让团队能够讨论：
 
-## 技术栈
+- 我更适合怎样推进研究？
+- 我需要怎样的反馈与协作环境？
+- 我在压力下更可能如何工作？
+- 我在团队里更适合承担什么类型的科研角色？
 
-- HTML5
-- CSS3
-- Vanilla JavaScript
-- JSON 数据文件
-- Browser `localStorage`
+## What It Includes / 项目内容
 
-## 目录结构
+- A static landing and assessment page with the title `MBTI-Research 科研协作测评`
+- A simple `MR` visual mark used as the project logo
+- 93 A/B questions based on AI research collaboration scenarios
+- 16 research collaboration profiles
+- Four-dimension scoring and profile generation
+- Progress saving through browser `localStorage`
+- Partial-result generation at any answering progress
+- A shareable result page through URL parameters
+- No backend, no database, no login, no build step
 
-```text
-.
-├── index.html              # 页面入口
-├── assets/
-│   ├── app.js              # 交互逻辑、数据加载、评分和结果渲染
-│   └── styles.css          # 页面样式
-├── data/
-│   ├── questions.json      # 93 道测评题
-│   └── profiles.json       # 16 种科研协作画像
-└── README.md
-```
+中文概览：
 
-## 本地预览
+- 页面标题为 `MBTI-Research 科研协作测评`
+- 使用 `MR` 作为项目视觉标识
+- 内置 93 道 AI 科研协作场景 A/B 题
+- 内置 16 种科研协作画像
+- 支持四维度计分与画像生成
+- 使用浏览器 `localStorage` 保存答题进度
+- 支持任意答题进度下查看临时结果
+- 支持通过 URL 分享结果页
+- 无后端、无数据库、无登录、无构建流程
 
-由于页面通过 `fetch()` 加载 `data/questions.json` 和 `data/profiles.json`，建议使用本地静态服务器预览，而不是直接双击打开 `index.html`。
+## Quick Start / 快速开始
 
-在项目根目录运行：
+Because the page loads JSON files through `fetch()`, preview it through a local static server instead of opening `index.html` directly.
+
+由于页面通过 `fetch()` 读取 JSON 数据文件，建议使用本地静态服务器预览，不建议直接双击打开 `index.html`。
 
 ```bash
 python -m http.server 8080
 ```
 
-然后访问：
+Then open:
 
 ```text
 http://127.0.0.1:8080/
 ```
 
-如果你的环境没有 Python，也可以使用任意静态服务器，例如 VS Code Live Server、Nginx、Caddy 或其他静态托管工具。
+No dependency installation is required.
 
-## 部署
+无需安装依赖。
+
+## Repository Structure / 目录结构
+
+```text
+.
+├── index.html
+├── assets/
+│   ├── app.js
+│   └── styles.css
+├── data/
+│   ├── questions.json
+│   └── profiles.json
+└── README.md
+```
+
+File responsibilities:
+
+- `index.html`: page structure, introduction, assessment container, profile list
+- `assets/app.js`: data loading, answer state, scoring, result rendering, share link generation
+- `assets/styles.css`: visual system, responsive layout, cards, buttons, result page styles
+- `data/questions.json`: assessment questions
+- `data/profiles.json`: 16 research collaboration profiles
+
+文件职责：
+
+- `index.html`：页面结构、项目介绍、测评区域、画像列表
+- `assets/app.js`：数据加载、答题状态、评分、结果渲染、分享链接生成
+- `assets/styles.css`：视觉样式、响应式布局、卡片、按钮、结果页样式
+- `data/questions.json`：测评题目
+- `data/profiles.json`：16 种科研协作画像
+
+## Deployment / 部署
+
+This project can be deployed as a plain static site. The repository root can be used directly as the publish directory.
+
+本项目是纯静态页面，可以直接将仓库根目录作为发布目录。
 
 ### GitHub Pages
 
-将仓库根目录作为 GitHub Pages 发布目录即可。
+1. Push this project to a GitHub repository.
+2. Open `Settings -> Pages`.
+3. Select `Deploy from a branch`.
+4. Choose the target branch, for example `main`.
+5. Choose `/` as the publish directory.
+6. Save and wait for GitHub Pages to publish the site.
 
-常见配置：
+### Other Static Hosting
 
-1. 将本项目推送到 GitHub 仓库。
-2. 打开仓库的 `Settings -> Pages`。
-3. 在 `Build and deployment` 中选择 `Deploy from a branch`。
-4. 选择目标分支，例如 `main`。
-5. 发布目录选择仓库根目录 `/`。
-6. 保存后等待 GitHub Pages 完成部署。
+You can also deploy it to Netlify, Vercel, Cloudflare Pages, Nginx, Apache, object storage static hosting, or any HTTP static file server.
 
-### 其他静态托管平台
-
-本项目没有构建产物目录。部署时直接上传整个项目目录，确保以下路径可被访问：
+Make sure these files remain accessible:
 
 - `index.html`
 - `assets/app.js`
@@ -93,114 +127,112 @@ http://127.0.0.1:8080/
 - `data/questions.json`
 - `data/profiles.json`
 
-可部署到 Netlify、Vercel、Cloudflare Pages、OSS 静态网站、Nginx、Apache 等平台。
+## Data Model / 数据说明
 
-## 数据与配置
+### Questions / 题目
 
-### 修改题目
-
-题目数据位于 `data/questions.json`。每道题包含：
+Questions are stored in `data/questions.json`.
 
 ```json
 {
   "id": 1,
-  "question": "题目内容",
-  "optionA": "A 选项",
-  "optionB": "B 选项"
+  "question": "Question text",
+  "optionA": "Option A",
+  "optionB": "Option B"
 }
 ```
 
-注意事项：
+If you add, remove, or reorder questions, update the scoring rules in `assets/app.js` at the same time.
 
-- `id` 需要保持连续且唯一。
-- 当前评分规则写在 `assets/app.js` 的 `SCORING_RULES` 中。
-- 如果新增、删除或调整题目编号，需要同步更新评分规则和维度总分。
+如果新增、删除或调整题目编号，需要同步更新 `assets/app.js` 中的评分规则。
 
-### 修改画像
+### Profiles / 画像
 
-画像数据位于 `data/profiles.json`。每个 MBTI 类型对应一组科研协作描述，例如：
+Profiles are stored in `data/profiles.json`. Each MBTI code maps to one research collaboration profile.
 
-- `name`：类型名称
-- `description`：画像概述
-- `strengths`：协作优势
-- `growth`：成长建议
-- `personality_traits`：科研偏好特点
-- `work_style`：研究工作风格
-- `interpersonal_relations`：团队协作方式
-- `communication_style`：沟通风格
-- `career_suggestions`：科研角色建议
+Common fields include:
 
-页面会根据测评结果中的类型代码读取对应画像。
+- `name`
+- `description`
+- `strengths`
+- `growth`
+- `personality_traits`
+- `work_style`
+- `interpersonal_relations`
+- `communication_style`
+- `stress_management`
+- `learning_style`
+- `career_suggestions`
 
-### 调整评分规则
+画像数据位于 `data/profiles.json`，每个 MBTI 类型代码对应一种科研协作画像。
 
-评分规则位于 `assets/app.js`：
+### Scoring / 评分
 
-- `SCORING_RULES` 定义哪些题目选 A 或选 B 会计入对应维度。
-- `DIMENSIONS` 定义四个维度的名称、左右倾向和总题数。
-- `TYPE_ORDER` 定义 16 种画像在页面中的展示顺序。
+Scoring rules are defined in `assets/app.js`.
 
-当前结果由四个维度组合而成：
+- `SCORING_RULES`: maps question IDs and answer directions to dimensions
+- `DIMENSIONS`: defines the four dimensions and their labels
+- `TYPE_ORDER`: controls the display order of the 16 profiles
+
+Current dimensions:
+
+- `E / I`: energy source
+- `S / N`: information gathering
+- `T / F`: decision style
+- `J / P`: work attitude and planning style
+
+当前维度：
 
 - `E / I`：能量来源
 - `S / N`：信息获取
 - `T / F`：决策方式
-- `J / P`：生活态度
+- `J / P`：工作态度与计划风格
 
-## 隐私说明
+## Privacy / 隐私说明
 
-项目不会主动上传用户答案，也没有内置后端接口。答题记录仅保存在用户当前浏览器的 `localStorage` 中。
+The app does not upload answers. It has no backend endpoint. Answers are saved only in the visitor's current browser through `localStorage`.
 
-用户可以通过页面中的“清空进度”功能删除当前浏览器保存的答案。不同设备、不同浏览器或无痕窗口之间不会共享答题进度。
+Sharing a result page only shares the final type, completion count, and profile description. It does not share the detailed answer record.
 
-## 浏览器兼容性
+项目不会上传用户答案，也没有后端接口。答题记录只保存在当前浏览器的 `localStorage` 中。
 
-建议使用现代浏览器访问：
+分享结果页只会分享类型、完成题数和画像描述，不会分享具体答题记录。
 
-- Chrome
-- Edge
-- Firefox
-- Safari
+## Contribution Guide / 贡献方向
 
-浏览器需要支持：
+The most valuable contributions are content quality and assessment quality. Recommended areas:
 
-- ES6 JavaScript
-- `fetch`
-- `localStorage`
-- CSS Grid / Flexbox
+- Improve question wording and reduce ambiguity
+- Improve the mapping between questions and dimensions
+- Expand or refine the 16 research collaboration profiles
+- Add better explanations for partial results and confidence
+- Improve accessibility and mobile layout
+- Add export, image card, or richer sharing support
+- Add tests or validation scripts for JSON schema and scoring consistency
 
-## 开发说明
+最主要的贡献方向是题目质量、画像质量和评分规则质量：
 
-本项目没有依赖安装和构建流程。修改后刷新浏览器即可看到效果。
+- 优化题目表述，减少歧义
+- 改进题目与维度的映射关系
+- 扩展或打磨 16 种科研协作画像
+- 改进临时结果与可靠性提示
+- 提升无障碍访问和移动端体验
+- 增加结果导出、图片卡片或更完整的分享能力
+- 增加 JSON 结构和评分一致性的校验脚本
 
-建议开发流程：
+Please keep the project lightweight and static-first. Avoid introducing backend services or build complexity unless there is a clear reason.
 
-1. 启动本地静态服务器。
-2. 修改 `data/questions.json`、`data/profiles.json` 或 `assets/app.js`。
-3. 在浏览器中完成一次完整答题流程。
-4. 检查移动端和桌面端布局。
-5. 清空 `localStorage` 后验证首次访问体验。
+请尽量保持项目轻量、静态优先。除非有明确必要，避免引入后端服务或复杂构建流程。
 
-## 贡献
+## License / 许可证
 
-欢迎围绕以下方向改进：
+This project uses the MIT License.
 
-- 优化题目表述
-- 扩展科研画像内容
-- 改进评分规则与维度解释
-- 增加结果导出或分享能力
-- 提升移动端体验与无障碍访问
-- 修复文案、样式或交互问题
-
-提交贡献前，请尽量保持项目的纯静态特性，避免引入不必要的服务端依赖或构建复杂度。
-
-## 📄 许可证
 本项目采用 MIT 许可证。
 
-## 🙏 致谢
-- 感谢原作者张超武及原项目 `zcw576020095/mbti-test` 提供的 Django 项目基础与实现参考
-- Django 社区
-- Bootstrap 团队
-- ReportLab 项目
----
-⭐ 如果这个项目对你有帮助，请给它一个星标！
+## Acknowledgements / 致谢
+
+- Thanks to the original author Zhang Chaowu and the original project `zcw576020095/mbti-test` for the Django project foundation and implementation reference.
+- Thanks to the open-source ecosystem that makes lightweight static publishing easy.
+
+感谢原作者张超武及原项目 `zcw576020095/mbti-test` 提供的 Django 项目基础与实现参考。也感谢开源生态让轻量静态发布变得简单。
