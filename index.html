@@ -14,9 +14,9 @@
       <span>MBTI-Research</span>
     </a>
     <nav class="top-actions" aria-label="页面导航">
-      <button class="ghost-button" type="button" data-action="scroll-about">项目介绍</button>
-      <button class="ghost-button" type="button" data-action="scroll-test">开始测评</button>
-      <button class="ghost-button" type="button" data-action="scroll-types">类型画像</button>
+      <button class="ghost-button" type="button" data-action="scroll-about"><span class="button-icon" aria-hidden="true">i</span>项目介绍</button>
+      <button class="ghost-button" type="button" data-action="scroll-test"><span class="button-icon" aria-hidden="true">A</span>开始测评</button>
+      <button class="ghost-button" type="button" data-action="scroll-types"><span class="button-icon" aria-hidden="true">16</span>类型画像</button>
     </nav>
   </header>
 
@@ -31,16 +31,16 @@
         <h1 id="hero-title">MBTI-Research 科研协作测评</h1>
         <p class="hero-subtitle">一个为 AI 研究者设计的 MBTI 风格科研协作画像工具。它关注研究偏好、团队互动、决策方式和项目推进风格，帮助个人与团队更好地理解彼此如何做研究。</p>
         <div class="hero-actions">
-          <button class="primary-button" type="button" data-action="scroll-test">开始测评</button>
-          <button class="secondary-button" type="button" data-action="scroll-about">了解项目</button>
-          <button class="secondary-button" type="button" data-action="reset-all">清空进度</button>
+          <button class="primary-button" type="button" data-action="scroll-test"><span class="button-icon" aria-hidden="true">A</span>开始测评</button>
+          <button class="secondary-button" type="button" data-action="scroll-about"><span class="button-icon" aria-hidden="true">i</span>了解项目</button>
+          <button class="secondary-button" type="button" data-action="reset-all"><span class="button-icon" aria-hidden="true">×</span>清空进度</button>
         </div>
       </div>
       <div class="hero-panel" aria-label="测评概览">
         <div class="hero-panel-title">Research Collaboration Map</div>
-        <div class="metric"><strong>93</strong><span>AI 科研场景题</span></div>
-        <div class="metric"><strong>16</strong><span>科研协作画像</span></div>
-        <div class="metric"><strong>0</strong><span>后端依赖，本地保存</span></div>
+        <div class="metric"><span class="metric-icon" aria-hidden="true">Q</span><strong>93</strong><span>AI 科研场景题</span></div>
+        <div class="metric"><span class="metric-icon" aria-hidden="true">T</span><strong>16</strong><span>科研协作画像</span></div>
+        <div class="metric"><span class="metric-icon" aria-hidden="true">0</span><strong>0</strong><span>后端依赖，本地保存</span></div>
       </div>
     </section>
 
@@ -53,14 +53,17 @@
       </div>
       <div class="about-grid">
         <article>
+          <span class="card-icon" aria-hidden="true">R</span>
           <h3>面向真实科研协作</h3>
           <p>AI 研究通常不是单人完成的线性任务，而是由选题、复现、实验、写作、讨论和交付组成的协作过程。本测评将 MBTI 四维度改写为更贴近科研工作的选择题。</p>
         </article>
         <article>
+          <span class="card-icon" aria-hidden="true">C</span>
           <h3>帮助团队形成共同语言</h3>
           <p>结果不用于定义人，而是帮助团队讨论“我更适合怎样推进研究”“我需要怎样的反馈”“我在压力下会怎样工作”等协作问题。</p>
         </article>
         <article>
+          <span class="card-icon" aria-hidden="true">S</span>
           <h3>静态、透明、易修改</h3>
           <p>题目、画像和评分规则都保存在前端文件中。你可以直接部署，也可以按自己的实验室、课程或团队语境调整内容。</p>
         </article>
@@ -92,8 +95,8 @@
       </div>
 
       <div class="form-actions">
-        <button class="secondary-button" type="button" id="reset-page">清空本页</button>
-        <button class="primary-button" type="button" id="submit-test">查看结果</button>
+        <button class="secondary-button" type="button" id="reset-page"><span class="button-icon" aria-hidden="true">×</span>清空本页</button>
+        <button class="primary-button" type="button" id="submit-test"><span class="button-icon" aria-hidden="true">✓</span>查看结果</button>
       </div>
     </section>
 
@@ -113,6 +116,13 @@
   <footer class="site-footer">
     <span>MBTI-Research 静态版，结果仅供科研协作、自我理解和团队沟通参考。</span>
   </footer>
+
+  <div class="modal-backdrop hidden" id="share-modal" role="dialog" aria-modal="true" aria-labelledby="share-modal-title">
+    <div class="share-modal-card">
+      <button class="modal-close" type="button" id="close-share-modal" aria-label="关闭分享窗口">×</button>
+      <div id="share-modal-content"></div>
+    </div>
+  </div>
 
   <script src="assets/app.js"></script>
 </body>

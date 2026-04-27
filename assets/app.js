@@ -37,6 +37,9 @@ const prevPageBottom = document.getElementById("prev-page-bottom");
 const nextPageBottom = document.getElementById("next-page-bottom");
 const resultSection = document.getElementById("result");
 const typeGrid = document.getElementById("type-grid");
+const shareModal = document.getElementById("share-modal");
+const shareModalContent = document.getElementById("share-modal-content");
+const closeShareModal = document.getElementById("close-share-modal");
 
 document.addEventListener("DOMContentLoaded", init);
 
@@ -69,6 +72,13 @@ function bindActions() {
   document.querySelectorAll("[data-action='scroll-test']").forEach((btn) => btn.addEventListener("click", () => scrollToId("test")));
   document.querySelectorAll("[data-action='scroll-types']").forEach((btn) => btn.addEventListener("click", () => scrollToId("types")));
   document.querySelector("[data-action='reset-all']").addEventListener("click", resetAll);
+  closeShareModal.addEventListener("click", closeSharePreview);
+  shareModal.addEventListener("click", (event) => {
+    if (event.target === shareModal) closeSharePreview();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !shareModal.classList.contains("hidden")) closeSharePreview();
+  });
 }
 
 function loadAnswers() {
@@ -263,15 +273,22 @@ function renderResult(result) {
       <div>
         <p class="eyebrow">Share</p>
         <h3>分享你的科研协作画像</h3>
-        <p>这个链接会打开一个专属分享页，只展示你的类型、画像说明和完整度，不包含具体答题记录。</p>
+        <p>这个链接会打开弹窗式分享页，只展示你的类型、画像说明和完整度，不包含具体答题记录。</p>
       </div>
       <div class="share-actions">
         <input class="share-input" type="text" readonly value="${escapeHtml(shareUrl)}" aria-label="分享链接">
-        <button class="secondary-button" type="button" id="copy-share-link">复制链接</button>
-        <a class="primary-link" href="${escapeHtml(shareUrl)}" target="_blank" rel="noopener">打开分享页</a>
+        <button class="secondary-button" type="button" id="copy-share-link"><span class="button-icon" aria-hidden="true">⧉</span>复制链接</button>
+        <button class="primary-button" type="button" id="open-share-preview"><span class="button-icon" aria-hidden="true">↗</span>预览分享弹窗</button>
       </div>
     </div>`;
   document.getElementById("copy-share-link").addEventListener("click", () => copyShareLink(shareUrl));
+  document.getElementById("open-share-preview").addEventListener("click", () => openSharePreview({
+    code: result.code,
+    profile: p,
+    completeness: result.completeness,
+    shareUrl,
+    mode: "self",
+  }));
 }
 
 function dimensionTemplates(dims) {
@@ -303,6 +320,7 @@ function renderTypeGrid() {
   typeGrid.innerHTML = TYPE_ORDER.map((code) => {
     const p = profiles[code] || {};
     return `<article class="type-card" data-type="${code}">
+      <span class="type-icon" aria-hidden="true">${code.slice(0, 2)}</span>
       <h3>${escapeHtml(p.name || code)}</h3>
       <span class="type-code">${code}</span>
       <p>${escapeHtml(shortText(p.description || "", 72))}</p>
@@ -361,29 +379,66 @@ function renderSharedResultFromUrl() {
   const total = Number(params.get("total") || questions.length);
   const completeness = total ? Math.min(100, Math.round((done / total) * 100)) : 0;
   const p = profiles[code] || {};
-  resultSection.classList.remove("hidden");
-  resultSection.innerHTML = `<div class="result-hero shared-result">
-      <p class="eyebrow" style="color:white;opacity:.85">分享的科研协作画像</p>
-      <div class="result-code">${code}</div>
-      <div class="result-name">${escapeHtml(p.name || "待补充画像")}</div>
-      <div class="result-badge">分享页 · 完整度 ${completeness}%</div>
-    </div>
-    <div class="result-grid">
-      <div class="result-card"><h3>科研画像概述</h3><p>${escapeHtml(p.description || "暂无详细描述。")}</p></div>
-      <div class="result-card"><h3>协作优势</h3><p>${escapeHtml(p.strengths || "暂无详细描述。")}</p></div>
-      <div class="result-card"><h3>成长建议</h3><p>${escapeHtml(p.growth || "暂无详细描述。")}</p></div>
-      <div class="result-card"><h3>科研角色建议</h3><p>${escapeHtml(p.career_suggestions || "暂无详细描述。")}</p></div>
-    </div>
-    <div class="share-panel">
+  openSharePreview({
+    code,
+    profile: p,
+    completeness,
+    shareUrl: window.location.href,
+    mode: "shared",
+  });
+}
+
+function openSharePreview({ code, profile, completeness, shareUrl, mode }) {
+  const title = mode === "shared" ? "分享的科研协作画像" : "你的科研协作分享卡";
+  shareModalContent.innerHTML = `<div class="share-card-preview">
+    <div class="share-card-head">
+      <span class="share-card-logo">MR</span>
       <div>
-        <p class="eyebrow">Try it</p>
-        <h3>生成你自己的科研协作画像</h3>
-        <p>分享页不包含对方的答题记录。你可以从头开始答题，得到自己的结果。</p>
+        <p class="eyebrow">MBTI-Research</p>
+        <h2 id="share-modal-title">${escapeHtml(title)}</h2>
       </div>
-      <button class="primary-button" type="button" data-action="scroll-test">开始测评</button>
-    </div>`;
-  resultSection.querySelector("[data-action='scroll-test']").addEventListener("click", () => scrollToId("test"));
-  scrollToId("result");
+    </div>
+    <div class="share-card-result">
+      <span class="share-card-code">${escapeHtml(code)}</span>
+      <span class="share-card-name">${escapeHtml(profile.name || "待补充画像")}</span>
+      <span class="share-card-badge">完整度 ${completeness}%</span>
+    </div>
+    <div class="share-card-body">
+      <article>
+        <span class="card-icon" aria-hidden="true">P</span>
+        <h3>画像概述</h3>
+        <p>${escapeHtml(profile.description || "暂无详细描述。")}</p>
+      </article>
+      <article>
+        <span class="card-icon" aria-hidden="true">S</span>
+        <h3>协作优势</h3>
+        <p>${escapeHtml(profile.strengths || "暂无详细描述。")}</p>
+      </article>
+      <article>
+        <span class="card-icon" aria-hidden="true">G</span>
+        <h3>成长建议</h3>
+        <p>${escapeHtml(profile.growth || "暂无详细描述。")}</p>
+      </article>
+    </div>
+    <div class="modal-actions">
+      <input class="share-input" type="text" readonly value="${escapeHtml(shareUrl)}" aria-label="分享链接">
+      <button class="secondary-button" type="button" id="modal-copy-link"><span class="button-icon" aria-hidden="true">⧉</span>复制链接</button>
+      <button class="primary-button" type="button" id="modal-start-test"><span class="button-icon" aria-hidden="true">A</span>我也测一测</button>
+    </div>
+  </div>`;
+  document.body.classList.add("modal-open");
+  shareModal.classList.remove("hidden");
+  document.getElementById("modal-copy-link").addEventListener("click", () => copyShareLink(shareUrl));
+  document.getElementById("modal-start-test").addEventListener("click", () => {
+    closeSharePreview();
+    scrollToId("test");
+  });
+  closeShareModal.focus();
+}
+
+function closeSharePreview() {
+  shareModal.classList.add("hidden");
+  document.body.classList.remove("modal-open");
 }
 
 function shortText(text, limit) {
