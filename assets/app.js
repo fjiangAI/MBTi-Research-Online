@@ -30,8 +30,11 @@ const progressFill = document.getElementById("progress-fill");
 const answeredCount = document.getElementById("answered-count");
 const totalCount = document.getElementById("total-count");
 const pageIndicator = document.getElementById("page-indicator");
+const pageIndicatorBottom = document.getElementById("page-indicator-bottom");
 const prevPage = document.getElementById("prev-page");
 const nextPage = document.getElementById("next-page");
+const prevPageBottom = document.getElementById("prev-page-bottom");
+const nextPageBottom = document.getElementById("next-page-bottom");
 const resultSection = document.getElementById("result");
 const typeGrid = document.getElementById("type-grid");
 
@@ -54,16 +57,15 @@ async function init() {
   bindActions();
   renderQuestions();
   renderTypeGrid();
+  renderSharedResultFromUrl();
 }
 
 function bindActions() {
-  prevPage.addEventListener("click", () => goPage(page - 1));
-  nextPage.addEventListener("click", () => {
-    if (!isCurrentPageComplete()) return showToast("请先完成当前页所有题目");
-    goPage(page + 1);
-  });
+  [prevPage, prevPageBottom].forEach((btn) => btn.addEventListener("click", () => goPage(page - 1)));
+  [nextPage, nextPageBottom].forEach((btn) => btn.addEventListener("click", () => goPage(page + 1)));
   document.getElementById("reset-page").addEventListener("click", resetCurrentPage);
   document.getElementById("submit-test").addEventListener("click", submitTest);
+  document.querySelectorAll("[data-action='scroll-about']").forEach((btn) => btn.addEventListener("click", () => scrollToId("about")));
   document.querySelectorAll("[data-action='scroll-test']").forEach((btn) => btn.addEventListener("click", () => scrollToId("test")));
   document.querySelectorAll("[data-action='scroll-types']").forEach((btn) => btn.addEventListener("click", () => scrollToId("types")));
   document.querySelector("[data-action='reset-all']").addEventListener("click", resetAll);
@@ -95,9 +97,11 @@ function renderQuestions() {
       updateProgress();
     });
   });
-  pageIndicator.textContent = `第 ${page} / ${totalPages} 页`;
-  prevPage.disabled = page === 1;
-  nextPage.disabled = page === totalPages;
+  const pageText = `第 ${page} / ${totalPages} 页`;
+  pageIndicator.textContent = pageText;
+  pageIndicatorBottom.textContent = pageText;
+  [prevPage, prevPageBottom].forEach((btn) => { btn.disabled = page === 1; });
+  [nextPage, nextPageBottom].forEach((btn) => { btn.disabled = page === totalPages; });
   updateProgress();
 }
 
@@ -144,11 +148,6 @@ function goPage(next) {
   scrollToId("test");
 }
 
-function isCurrentPageComplete() {
-  const start = (page - 1) * PAGE_SIZE;
-  return questions.slice(start, start + PAGE_SIZE).every((q) => answers[q.id]);
-}
-
 function resetCurrentPage() {
   const start = (page - 1) * PAGE_SIZE;
   questions.slice(start, start + PAGE_SIZE).forEach((q) => delete answers[q.id]);
@@ -168,46 +167,80 @@ function resetAll() {
 
 function submitTest() {
   const missing = questions.filter((q) => !answers[q.id]).map((q) => q.id);
-  if (missing.length) {
-    page = Math.ceil(missing[0] / PAGE_SIZE);
-    renderQuestions();
-    showToast(`还有 ${missing.length} 道题未完成，请先补全`);
+  const answered = questions.length - missing.length;
+  if (!answered) {
+    showToast("请至少完成 1 道题后再查看结果");
     return;
   }
   const result = calculateResult();
+  if (missing.length) {
+    showToast(`已基于 ${answered} 道题生成临时结果，答得越多越准确`);
+  }
   renderResult(result);
   scrollToId("result");
 }
 
 function calculateResult() {
-  const scores = { E: 0, S: 0, T: 0, J: 0 };
-  for (const q of SCORING_RULES.E_A) if (answers[q] === "1") scores.E += 1;
-  for (const q of SCORING_RULES.I_B) if (answers[q] === "2") scores.E += 1;
-  for (const q of SCORING_RULES.S_A) if (answers[q] === "1") scores.S += 1;
-  for (const q of SCORING_RULES.N_B) if (answers[q] === "2") scores.S += 1;
-  for (const q of SCORING_RULES.T_A) if (answers[q] === "1") scores.T += 1;
-  for (const q of SCORING_RULES.F_B) if (answers[q] === "2") scores.T += 1;
-  for (const q of SCORING_RULES.J_A) if (answers[q] === "1") scores.J += 1;
-  for (const q of SCORING_RULES.P_B) if (answers[q] === "2") scores.J += 1;
+  const scored = {
+    IE: scoreDimension(SCORING_RULES.E_A, SCORING_RULES.I_B),
+    SN: scoreDimension(SCORING_RULES.S_A, SCORING_RULES.N_B),
+    TF: scoreDimension(SCORING_RULES.T_A, SCORING_RULES.F_B),
+    JP: scoreDimension(SCORING_RULES.J_A, SCORING_RULES.P_B),
+  };
 
   const dims = {
-    IE: { E: scores.E, I: DIMENSIONS.IE.total - scores.E },
-    SN: { S: scores.S, N: DIMENSIONS.SN.total - scores.S },
-    TF: { T: scores.T, F: DIMENSIONS.TF.total - scores.T },
-    JP: { J: scores.J, P: DIMENSIONS.JP.total - scores.J },
+    IE: { E: scored.IE.left, I: scored.IE.right, answered: scored.IE.answered },
+    SN: { S: scored.SN.left, N: scored.SN.right, answered: scored.SN.answered },
+    TF: { T: scored.TF.left, F: scored.TF.right, answered: scored.TF.answered },
+    JP: { J: scored.JP.left, P: scored.JP.right, answered: scored.JP.answered },
   };
-  const code = `${dims.IE.E > dims.IE.I ? "E" : "I"}${dims.SN.S > dims.SN.N ? "S" : "N"}${dims.TF.T > dims.TF.F ? "T" : "F"}${dims.JP.J > dims.JP.P ? "J" : "P"}`;
-  return { code, dims, profile: profiles[code] || {} };
+  const code = `${pickType(dims.IE, "E", "I")}${pickType(dims.SN, "S", "N")}${pickType(dims.TF, "T", "F")}${pickType(dims.JP, "J", "P")}`;
+  const answeredCount = Object.keys(answers).filter((id) => answers[id]).length;
+  return {
+    code,
+    dims,
+    profile: profiles[code] || {},
+    answeredCount,
+    totalCount: questions.length,
+    completeness: Math.round((answeredCount / questions.length) * 100),
+  };
+}
+
+function scoreDimension(leftARules, rightBRules) {
+  const output = { left: 0, right: 0, answered: 0 };
+  for (const q of leftARules) {
+    if (!answers[q]) continue;
+    output.answered += 1;
+    answers[q] === "1" ? output.left += 1 : output.right += 1;
+  }
+  for (const q of rightBRules) {
+    if (!answers[q]) continue;
+    output.answered += 1;
+    answers[q] === "2" ? output.left += 1 : output.right += 1;
+  }
+  return output;
+}
+
+function pickType(dims, left, right) {
+  if (dims[left] === dims[right]) return right;
+  return dims[left] > dims[right] ? left : right;
 }
 
 function renderResult(result) {
   const p = result.profile;
+  const shareUrl = buildShareUrl(result);
+  const reliabilityLabel = result.completeness === 100 ? "完整结果" : "临时结果";
+  const reliabilityText = result.completeness === 100
+    ? "你已经完成全部题目，结果完整度较高。"
+    : `当前完成 ${result.answeredCount}/${result.totalCount} 题。结果可先用于参考，继续答题会提升稳定性。`;
   resultSection.classList.remove("hidden");
   resultSection.innerHTML = `<div class="result-hero">
       <p class="eyebrow" style="color:white;opacity:.85">你的科研协作画像是</p>
       <div class="result-code">${result.code}</div>
       <div class="result-name">${escapeHtml(p.name || "待补充画像")}</div>
+      <div class="result-badge">${reliabilityLabel} · 完整度 ${result.completeness}%</div>
     </div>
+    <div class="result-notice">${escapeHtml(reliabilityText)}</div>
     <div class="result-grid">
       <div class="result-card"><h3>科研画像概述</h3><p>${escapeHtml(p.description || "暂无详细描述。")}</p></div>
       <div class="result-card"><h3>协作优势</h3><p>${escapeHtml(p.strengths || "暂无详细描述。")}</p></div>
@@ -225,24 +258,38 @@ function renderResult(result) {
       ${profileDetail("沟通风格", p.communication_style)}
       ${profileDetail("压力管理", p.stress_management)}
       ${profileDetail("学习方式", p.learning_style)}
+    </div>
+    <div class="share-panel" id="share">
+      <div>
+        <p class="eyebrow">Share</p>
+        <h3>分享你的科研协作画像</h3>
+        <p>这个链接会打开一个专属分享页，只展示你的类型、画像说明和完整度，不包含具体答题记录。</p>
+      </div>
+      <div class="share-actions">
+        <input class="share-input" type="text" readonly value="${escapeHtml(shareUrl)}" aria-label="分享链接">
+        <button class="secondary-button" type="button" id="copy-share-link">复制链接</button>
+        <a class="primary-link" href="${escapeHtml(shareUrl)}" target="_blank" rel="noopener">打开分享页</a>
+      </div>
     </div>`;
+  document.getElementById("copy-share-link").addEventListener("click", () => copyShareLink(shareUrl));
 }
 
 function dimensionTemplates(dims) {
   return Object.entries(DIMENSIONS).map(([dim, meta]) => {
     const leftScore = dims[dim][meta.left];
     const rightScore = dims[dim][meta.right];
-    const winner = leftScore > rightScore ? meta.left : meta.right;
+    const answered = dims[dim].answered || 0;
+    const winner = pickType(dims[dim], meta.left, meta.right);
     const winnerName = winner === meta.left ? meta.leftName : meta.rightName;
-    const confidence = Math.round((Math.abs(leftScore - rightScore) / meta.total) * 100);
+    const confidence = answered ? Math.round((Math.abs(leftScore - rightScore) / answered) * 100) : 0;
     return `<div class="dimension-row">
       <div class="dimension-head"><span>${meta.name}</span><span>${meta.left} ${leftScore} / ${meta.right} ${rightScore}</span></div>
       <div class="dimension-bar">
-        <div class="dimension-side dimension-left"><div class="dimension-fill-left" style="width:${(leftScore / meta.total) * 100}%"></div></div>
+        <div class="dimension-side dimension-left"><div class="dimension-fill-left" style="width:${answered ? (leftScore / answered) * 100 : 0}%"></div></div>
         <div class="dimension-mid"></div>
-        <div class="dimension-side dimension-right"><div class="dimension-fill-right" style="width:${(rightScore / meta.total) * 100}%"></div></div>
+        <div class="dimension-side dimension-right"><div class="dimension-fill-right" style="width:${answered ? (rightScore / answered) * 100 : 0}%"></div></div>
       </div>
-      <div class="dimension-meta">倾向：${winner}（${winnerName}），差值 ${leftScore - rightScore >= 0 ? "+" : ""}${leftScore - rightScore}，置信度 ${confidence}%</div>
+      <div class="dimension-meta">倾向：${winner}（${winnerName}），本维度已答 ${answered}/${meta.total}，差值 ${leftScore - rightScore >= 0 ? "+" : ""}${leftScore - rightScore}，稳定度 ${confidence}%</div>
     </div>`;
   }).join("");
 }
@@ -285,6 +332,58 @@ function expandType(code) {
 
 function scrollToId(id) {
   document.getElementById(id).scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function buildShareUrl(result) {
+  const url = new URL(window.location.href);
+  url.search = "";
+  url.hash = "";
+  url.searchParams.set("type", result.code);
+  url.searchParams.set("done", result.answeredCount);
+  url.searchParams.set("total", result.totalCount);
+  return url.toString();
+}
+
+async function copyShareLink(url) {
+  try {
+    await navigator.clipboard.writeText(url);
+    showToast("分享链接已复制");
+  } catch {
+    showToast("复制失败，请手动复制链接");
+  }
+}
+
+function renderSharedResultFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const code = (params.get("type") || "").toUpperCase();
+  if (!TYPE_ORDER.includes(code)) return;
+  const done = Number(params.get("done") || 0);
+  const total = Number(params.get("total") || questions.length);
+  const completeness = total ? Math.min(100, Math.round((done / total) * 100)) : 0;
+  const p = profiles[code] || {};
+  resultSection.classList.remove("hidden");
+  resultSection.innerHTML = `<div class="result-hero shared-result">
+      <p class="eyebrow" style="color:white;opacity:.85">分享的科研协作画像</p>
+      <div class="result-code">${code}</div>
+      <div class="result-name">${escapeHtml(p.name || "待补充画像")}</div>
+      <div class="result-badge">分享页 · 完整度 ${completeness}%</div>
+    </div>
+    <div class="result-grid">
+      <div class="result-card"><h3>科研画像概述</h3><p>${escapeHtml(p.description || "暂无详细描述。")}</p></div>
+      <div class="result-card"><h3>协作优势</h3><p>${escapeHtml(p.strengths || "暂无详细描述。")}</p></div>
+      <div class="result-card"><h3>成长建议</h3><p>${escapeHtml(p.growth || "暂无详细描述。")}</p></div>
+      <div class="result-card"><h3>科研角色建议</h3><p>${escapeHtml(p.career_suggestions || "暂无详细描述。")}</p></div>
+    </div>
+    <div class="share-panel">
+      <div>
+        <p class="eyebrow">Try it</p>
+        <h3>生成你自己的科研协作画像</h3>
+        <p>分享页不包含对方的答题记录。你可以从头开始答题，得到自己的结果。</p>
+      </div>
+      <button class="primary-button" type="button" data-action="scroll-test">开始测评</button>
+    </div>`;
+  resultSection.querySelector("[data-action='scroll-test']").addEventListener("click", () => scrollToId("test"));
+  scrollToId("result");
 }
 
 function shortText(text, limit) {

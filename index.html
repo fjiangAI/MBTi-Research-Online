@@ -14,6 +14,7 @@
       <span>MBTI-Research</span>
     </a>
     <nav class="top-actions" aria-label="页面导航">
+      <button class="ghost-button" type="button" data-action="scroll-about">项目介绍</button>
       <button class="ghost-button" type="button" data-action="scroll-test">开始测评</button>
       <button class="ghost-button" type="button" data-action="scroll-types">类型画像</button>
     </nav>
@@ -22,18 +23,47 @@
   <main id="top">
     <section class="hero-section" aria-labelledby="hero-title">
       <div class="hero-copy">
+        <div class="hero-logo" aria-hidden="true">
+          <span class="hero-logo-main">MR</span>
+          <span class="hero-logo-sub">AI Research Personality</span>
+        </div>
         <p class="eyebrow">科研协作偏好 · 静态评测版</p>
         <h1 id="hero-title">MBTI-Research 科研协作测评</h1>
-        <p class="hero-subtitle">93 道 A/B 题，直接在浏览器中完成评分并生成科研协作画像。无需注册、无需登录、无需数据库。</p>
+        <p class="hero-subtitle">一个为 AI 研究者设计的 MBTI 风格科研协作画像工具。它关注研究偏好、团队互动、决策方式和项目推进风格，帮助个人与团队更好地理解彼此如何做研究。</p>
         <div class="hero-actions">
           <button class="primary-button" type="button" data-action="scroll-test">开始测评</button>
+          <button class="secondary-button" type="button" data-action="scroll-about">了解项目</button>
           <button class="secondary-button" type="button" data-action="reset-all">清空进度</button>
         </div>
       </div>
       <div class="hero-panel" aria-label="测评概览">
-        <div class="metric"><strong>93</strong><span>题目数量</span></div>
-        <div class="metric"><strong>16</strong><span>协作画像</span></div>
-        <div class="metric"><strong>0</strong><span>后端依赖</span></div>
+        <div class="hero-panel-title">Research Collaboration Map</div>
+        <div class="metric"><strong>93</strong><span>AI 科研场景题</span></div>
+        <div class="metric"><strong>16</strong><span>科研协作画像</span></div>
+        <div class="metric"><strong>0</strong><span>后端依赖，本地保存</span></div>
+      </div>
+    </section>
+
+    <section class="about-section" id="about" aria-labelledby="about-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Why it exists</p>
+          <h2 id="about-title">项目出发点</h2>
+        </div>
+      </div>
+      <div class="about-grid">
+        <article>
+          <h3>面向真实科研协作</h3>
+          <p>AI 研究通常不是单人完成的线性任务，而是由选题、复现、实验、写作、讨论和交付组成的协作过程。本测评将 MBTI 四维度改写为更贴近科研工作的选择题。</p>
+        </article>
+        <article>
+          <h3>帮助团队形成共同语言</h3>
+          <p>结果不用于定义人，而是帮助团队讨论“我更适合怎样推进研究”“我需要怎样的反馈”“我在压力下会怎样工作”等协作问题。</p>
+        </article>
+        <article>
+          <h3>静态、透明、易修改</h3>
+          <p>题目、画像和评分规则都保存在前端文件中。你可以直接部署，也可以按自己的实验室、课程或团队语境调整内容。</p>
+        </article>
       </div>
     </section>
 
@@ -54,6 +84,12 @@
       </div>
 
       <form id="test-form" class="question-list"></form>
+
+      <div class="test-toolbar bottom-toolbar" aria-label="底部分页导航">
+        <button class="icon-button" type="button" id="prev-page-bottom" aria-label="上一页">‹</button>
+        <span id="page-indicator-bottom">第 1 / 10 页</span>
+        <button class="icon-button" type="button" id="next-page-bottom" aria-label="下一页">›</button>
+      </div>
 
       <div class="form-actions">
         <button class="secondary-button" type="button" id="reset-page">清空本页</button>
